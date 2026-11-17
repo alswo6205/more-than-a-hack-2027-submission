@@ -10,7 +10,7 @@ from kloppy import sportec
 from config import SPORTEC_MATCHES
 
 # 로컬 Sportec 원본 폴더 (positions xml + metadata/). 환경변수 SPORTEC_RAW 로 바꿀 수 있음
-SRC = os.environ.get("SPORTEC_RAW", r"C:\Users\alswo\Desktop\연대 26-1\YSAL\공동연구\data\data\raw")
+SRC = os.environ.get("SPORTEC_RAW", os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "sportec_raw"))
 
 def _one(pattern):
     hits = glob.glob(os.path.join(SRC, pattern))

@@ -46,6 +46,18 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 > Without it `build_npz.py` writes an all-False mask and prints a warning, and `train_e4ha.py` stops
 > (it samples ball-gap lengths from the mask). V1 training and `run_sub13.py` do not use it.
 
+## Data setup
+
+Neither folder is committed (both are in `.gitignore`). Paths are relative to the repo root; override with env vars `SPORTEC_RAW` / `BENCH_INPUTS`.
+
+### `sportec_raw/` (Sportec / IDSSE open data)
+- Source: TODO (download URL / DOI of the Sportec open dataset)
+- Expected layout: `sportec_raw/DFL_04_03_positions_raw_observed_*.xml`, `sportec_raw/event/`, `sportec_raw/metadata/`
+- Steps: TODO (download → unzip → place files as above)
+
+### `recovery_bench/inputs/` (5 FPS player positions, `<match>_input.csv`)
+- Source: TODO (who produces it / which script generates it)
+
 ## How to run
 
 All commands run from this repository's root unless noted. `<comp>` is the competition repository (it has `games.py`, `data/` and `evaluation/`).

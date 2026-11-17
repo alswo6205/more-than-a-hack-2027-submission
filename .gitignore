@@ -20,3 +20,5 @@ deadball/raw/
 deadball/data/
 third_party/outputs/
 __pycache__/
+sportec_raw/
+recovery_bench/

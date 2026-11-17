@@ -3,9 +3,9 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 # Sportec (IDSSE) open data: DFL_04_03_positions_raw_observed_*.xml, event/, metadata/
-SPORTEC_RAW = os.environ.get("SPORTEC_RAW", r"C:\Users\alswo\Desktop\연대 26-1\YSAL\공동연구\data\data\raw")
+SPORTEC_RAW = os.environ.get("SPORTEC_RAW", os.path.join(REPO, "sportec_raw"))
 # 5 FPS player-position tables from the ball-recovery benchmark (recovery_bench/inputs/<match>_input.csv)
-BENCH_INPUTS = os.environ.get("BENCH_INPUTS", os.path.join(REPO, "..", "recovery_bench", "inputs"))
+BENCH_INPUTS = os.environ.get("BENCH_INPUTS", os.path.join(REPO, "recovery_bench", "inputs"))
 # new_data ball-missing masks (TODO, owned by another team member): <ND_MASK_DIR>/<match>_nd_mask.npy
 ND_MASK_DIR = os.environ.get("ND_MASK_DIR", os.path.join(REPO, "work", "nd_mask"))
 WORK = os.environ.get("WORK_DIR", os.path.join(REPO, "work"))
