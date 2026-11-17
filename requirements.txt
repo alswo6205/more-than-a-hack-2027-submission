@@ -1,4 +1,4 @@
-# Python 3.13.14 (versions used to build sub_13)
+# Python 3.13.14 (versions used to build the final YSAL submission)
 numpy==2.4.4
 scipy==1.18.0
 pandas==3.0.3

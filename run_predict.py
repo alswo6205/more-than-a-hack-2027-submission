@@ -1,15 +1,15 @@
-"""Build the sub_13 submission for the competition match (BAR-ATH). No training, CPU is fine.
+"""Build the YSAL submission (final model) for the competition match (BAR-ATH). No training, CPU is fine.
 
-sub_13
+Final model
   A/D : (V1[mid] D probability + tree p_dead) / 2
   H/A : E4HA[mid] (ball-input team model)
   decoder: one 3-state Viterbi per half (H<->A switch 2.0, H/A<->D switch 2.5), 5 FPS -> 25 FPS by nearest step
   E4HA input: the ball is hidden in frames that an auxiliary Viterbi (same A/D, V1 team probability) labels D
   fixed: 110808~113741 (before the second-half kick-off) = D (FAQ.md), outside the halves = X
 
-  python run_sub13.py --repo <competition repo> [--data-dir <data>] [--tree deadball_out/deadball_frames.csv] [--out sub_13.csv]
+  python run_predict.py --repo <competition repo> [--data-dir <data>] [--tree deadball_out/deadball_frames.csv] [--out YSAL.csv]
 
-Extracted from apply_combos.py (only the sub_13 branch kept; computation unchanged).
+Extracted from apply_combos.py (only the final-model branch kept; computation unchanged).
 """
 import argparse, os, sys, time
 import xml.etree.ElementTree as ET
@@ -117,7 +117,7 @@ def main():
     ap.add_argument("--data-dir"); ap.add_argument("--atd-meta"); ap.add_argument("--atd-raw")
     ap.add_argument("--models", default=os.path.join(HERE, "models"))
     ap.add_argument("--tree", default="deadball_out/deadball_frames.csv")
-    ap.add_argument("--out", default="sub_13.csv"); ap.add_argument("--n-frames", type=int, default=N_FRAMES)
+    ap.add_argument("--out", default="YSAL.csv"); ap.add_argument("--n-frames", type=int, default=N_FRAMES)
     a = ap.parse_args(); repo = os.path.abspath(os.path.expanduser(a.repo)); t0 = time.time()
     sys.path.insert(0, repo); sys.path.insert(0, os.path.join(HERE, "third_party"))
     import torch, models_new

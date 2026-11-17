@@ -1,12 +1,14 @@
-# Possession pipeline: sub_13 (branch `sub13`)
+# YSAL — More Than A Hack 2027 possession pipeline
 
-This branch has everything needed to rebuild the `sub_13` submission. It covers preprocessing, training and prediction.
+This repository has everything needed to rebuild the final YSAL submission. It covers preprocessing, training and prediction.
+
+**Final model:** A/D = average of V1 and tree, H/A = E4HA, both trained on the controlled-possession (mid) labels.
 
 **All models were trained only on the 7 public Sportec (IDSSE) matches**: J03WMX, J03WN1, J03WOH, J03WOY, J03WPY, J03WQQ and J03WR9.
 The competition match (BAR-ATH) is used only for prediction. It is never used for training or model selection.
 The trained models are included, so you can go straight to steps 4 and 5 without training anything.
 
-## What sub_13 is
+## Final model
 
 | Part | Method |
 |---|---|
@@ -26,7 +28,7 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 | `train/common_train.py` | shared data loading and the train/validation split (train on 6 matches, select on J03WPY) |
 | `deadball/` | tree A/D model: code and trained model (`deadball/model/`). See `deadball/README.md` |
 | `models/v1_mid.zip`, `models/e4ha_mid.zip` | trained weights. Despite the `.zip` name these are torch `.pt` files |
-| `run_sub13.py` | builds the sub_13 CSV for BAR-ATH |
+| `run_predict.py` | builds the final YSAL CSV for BAR-ATH |
 | `third_party/` | copied external code (see Sources) |
 | `work/` | generated intermediates (git-ignored) |
 
@@ -49,9 +51,13 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 Neither folder is committed (both are in `.gitignore`). Paths are relative to the repo root; override with env vars `SPORTEC_RAW` / `NEW_DATA`.
 
 ### `sportec_raw/` (Sportec / IDSSE open data)
-- Source: TODO (download URL / DOI of the Sportec open dataset)
+- Source: Bassek, M., Rein, R., Weber, H. & Memmert, D. "An integrated dataset of spatiotemporal and event data in elite soccer", *Scientific Data* 12, 195 (2025), https://doi.org/10.1038/s41597-025-04505-y (CC-BY 4.0)
+- Download: figshare, https://doi.org/10.6084/m9.figshare.28196177 (each match has a match information, an events and a position XML file)
 - Expected layout: `sportec_raw/DFL_04_03_positions_raw_observed_*.xml`, `sportec_raw/event/`, `sportec_raw/metadata/`
-- Steps: TODO (download → unzip → place files as above)
+- Steps:
+  1. Download all files of the dataset from the figshare page above and unzip them if needed.
+  2. Put the position files (`DFL_04_03_positions_raw_observed_*_DFL-MAT-<match>.xml`) directly in `sportec_raw/`.
+  3. Put the event files in `sportec_raw/event/` and the match information files in `sportec_raw/metadata/`.
 
 
 ### `new_data/` (`<match>_with_gt.csv`, 5 FPS, one file per Sportec match)
@@ -116,33 +122,39 @@ python <this repo>/deadball/predict_atd.py --out deadball_out
 ```
 This writes `deadball_out/deadball_frames.csv` (`video_frame, half, graded, p_dead, dead`).
 
-**5. sub_13 (run in `<comp>`)**
+**5. Predict (run in `<comp>`)**
 ```
-python <this repo>/run_sub13.py --repo . --tree deadball_out/deadball_frames.csv --out combo_submissions/sub_13.csv
+python <this repo>/run_predict.py --repo . --tree deadball_out/deadball_frames.csv --out YSAL.csv
 ```
 - `--data-dir` sets the data folder (the default comes from `games.asset_paths`).
 - No training is needed, and it runs on CPU in about 20 s.
 
 **6. Validate**
 ```
-python evaluation/validate_submission.py combo_submissions/sub_13.csv
+python evaluation/validate_submission.py YSAL.csv
 ```
 
-## Checks done on this branch
+## Checks done on this repository
+
+Folder and file names such as `recovery_bench/`, `recovery_bench_check/`, `gk_test/`, `apply_combos.py`, `combo_submissions/` and `kaggle/combo_experiment.ipynb` refer to earlier internal working folders; they are not part of this repository.
+
 - `make_inputs.py` gives the same player columns as the earlier `recovery_bench/inputs` for all 7 matches (max difference 3e-14 m), so `step1_base_npz.py` output is unchanged. The ball columns come from `new_data` and differ from that benchmark's own ball mask; step1 does not read them.
 - `make_ball5.py` gives the same values as the earlier `gk_test/*_ball5.csv` for all 7 matches.
-- `run_sub13.py` gives the same output as the earlier `combo_submissions/sub_13.csv`: 0 of 199,319 frames differ.
+- `run_predict.py` gives the same output as the earlier submission CSV built in the internal working folder: 0 of 199,319 frames differ.
 - `deadball/predict_atd.py` reproduces the earlier `deadball_frames.csv` exactly.
 - `train_v1.py` and `train_e4ha.py` each ran for 1 epoch without errors.
 
 ## Sources of copied code
+
+Paths in parentheses such as `recovery_bench_check/` and `apply_combos.py` are earlier internal working folders, not included here.
+
 | Path | Source |
 |---|---|
 | `third_party/pa_sm/` | V1 repository `barcelona-possession_ad` (team member's repo), package `pa_sm/`. Unmodified |
 | `third_party/models_new.py` | `mtah-e4` repository (`models_new.py`: Set Attention / PMA frame encoder). Unmodified |
 | `preprocess/step1_*.py`, `step2_*.py`, `features.py`, `config.py`, `common.py` | earlier data-build code (`recovery_bench_check/data_build/`). Only paths were changed, and step2's evaluation table was dropped |
 | `train/train_*.py` | `data_build/train_and_eval_combo.py` (= `kaggle/combo_experiment.ipynb`). The `mid`-label parts only, with the same computation |
-| `run_sub13.py` | `recovery_bench_check/apply_combos.py`. Only the sub_13 branch was kept |
+| `run_predict.py` | `recovery_bench_check/apply_combos.py`. Only the final-model branch was kept |
 
 ## Data policy
 Competition data (`data/`, `deadball_out/`, submission CSVs, anything BAR-ATH) is not stored in this repository, and `.gitignore` blocks it.
