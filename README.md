@@ -34,6 +34,7 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 
 | Script | Output |
 |---|---|
+| `make_new_data.py` | `new_data/<m>_with_gt.csv`: 5 FPS Sportec data with ATD-like synthetic ball-missing masks |
 | `make_inputs.py` (new) | `work/inputs/<m>_input.csv`: 5 FPS player positions (0–105 / 0–68 m) from the Sportec position XML, on the `new_data` frames |
 | `make_ball5.py` (new) | `work/ball5/<m>_ball5.csv`: ball x, y, z, BallPossession and BallStatus from the Sportec position XML, every 5th frame of each half |
 | `step1_base_npz.py` | `work/base/<m>.npz`: positions, ball, original labels |
@@ -52,9 +53,16 @@ Neither folder is committed (both are in `.gitignore`). Paths are relative to th
 - Expected layout: `sportec_raw/DFL_04_03_positions_raw_observed_*.xml`, `sportec_raw/event/`, `sportec_raw/metadata/`
 - Steps: TODO (download → unzip → place files as above)
 
+
 ### `new_data/` (`<match>_with_gt.csv`, 5 FPS, one file per Sportec match)
-- Source: TODO (who produces it / where to download it)
-- Used for: the 5 FPS frame list and ball columns (`make_inputs.py`) and `ball_masked` = `nd_mask` (`build_npz.py`)
+
+- Source: Generated from the Sportec XML files using `preprocess/make_new_data.py`.
+- Generation: Run `python preprocess/make_new_data.py` from the repository root.
+- Method: ATD-like contiguous ball-missing augmentation at 5 FPS, targeting a 10.6% missing rate within Alive frames.
+- GT reference: All 7 Sportec matches, including the validation match J03WPY, use GT Alive labels for mask generation.
+- Outputs: `new_data/<match>_with_gt.csv`, `work/masks/<match>_nd_mask.npy`, and `work/masks/<match>_report.json`.
+- Used for: The 5 FPS frame list and ball columns (`make_inputs.py`) and `ball_masked` = `nd_mask` (`build_npz.py`).
+
 
 ## How to run
 
@@ -65,13 +73,23 @@ All commands run from this repository's root unless noted. `<comp>` is the compe
 pip install -r requirements.txt
 ```
 
+
 **2. Preprocess (Sportec only)**
 
-Inputs: `sportec_raw/` and `new_data/` (see Data setup).
+Input: `sportec_raw/` (see Data setup).
 
+First, generate `new_data/` from the Sportec XML files.
+This generates 5 FPS data with synthetic ball-missing masks for all 7 Sportec matches, using GT Alive labels.
+
+```bash
+python preprocess/make_new_data.py
 ```
+
+Then run the existing preprocessing pipeline.
+
+```bash
 cd preprocess
-python make_inputs.py      # about 4 min per match
+python make_inputs.py
 python make_ball5.py
 python step1_base_npz.py
 python step2_tree_pD_lomo.py
@@ -79,6 +97,9 @@ python relabel_controlled_possession.py --raw ../sportec_raw --out ../work/label
 python build_npz.py
 cd ..
 ```
+
+The generated training datasets are saved to `work/dataset/`.
+
 
 **3. Train (optional: trained weights are already in `models/`)**
 ```
