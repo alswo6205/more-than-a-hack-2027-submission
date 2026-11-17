@@ -1,6 +1,6 @@
 """Sportec position XML -> work/ball5/<match>_ball5.csv (ball x, y, z, BallPossession, BallStatus at 5 FPS).
 
-Every 5th frame from the first frame of each half (same frames as recovery_bench/inputs).
+Every 5th frame from the first frame of each half (same frames as new_data and work/inputs).
 Coordinates are the raw Sportec values (metres, pitch centre = origin).
   python preprocess/make_ball5.py [match ...]
 """

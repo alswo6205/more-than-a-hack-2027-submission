@@ -43,7 +43,7 @@ GAPLEN=[]                                              # new_data gap lengths (t
 for m in TRAIN:
     a=D[m]['nd_mask'].astype(int);d=np.diff(np.r_[0,a,0]);GAPLEN+=list(np.flatnonzero(d==-1)-np.flatnonzero(d==1))
 GAPLEN=np.array(GAPLEN)
-assert len(GAPLEN),'nd_mask is all False: put the new_data masks in ND_MASK_DIR and rerun preprocess/build_npz.py'
+assert len(GAPLEN),'nd_mask is all False: check new_data/<m>_with_gt.csv ball_masked and rerun preprocess/build_npz.py'
 print('new_data gap length (5 Hz frames) median',np.median(GAPLEN),'max',GAPLEN.max(),flush=True)
 def bursts(n,p,sampler,rng,pre=70):
     f=np.zeros(n+pre,bool)

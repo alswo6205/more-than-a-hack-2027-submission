@@ -34,28 +34,27 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 
 | Script | Output |
 |---|---|
+| `make_inputs.py` (new) | `work/inputs/<m>_input.csv`: 5 FPS player positions (0–105 / 0–68 m) from the Sportec position XML, on the `new_data` frames |
 | `make_ball5.py` (new) | `work/ball5/<m>_ball5.csv`: ball x, y, z, BallPossession and BallStatus from the Sportec position XML, every 5th frame of each half |
 | `step1_base_npz.py` | `work/base/<m>.npz`: positions, ball, original labels |
 | `step2_tree_pD_lomo.py` | `work/tree_prob.npz`: leave-one-match-out tree D probability (`tree_pD`) |
 | `relabel_controlled_possession.py` | `work/labels/<m>_labels.csv`: event-based relabelling (`poss_orig`, `poss_loose`, `poss_mid`, `poss_strict`) |
 | `build_npz.py` (new) | `work/dataset/<m>.npz` with the keys `xy, teams, frame, period, gt_orig, ball, nd_mask, tree_pD, gt_loose, gt_mid` |
 
-> **TODO – new_data ball-missing mask (`nd_mask`)**: another team member produces this mask, so it is not built here.
-> Put it at `work/nd_mask/<match>_nd_mask.npy` (bool, one value per 5 Hz frame), or set `ND_MASK_DIR`, before running `build_npz.py`.
-> Without it `build_npz.py` writes an all-False mask and prints a warning, and `train_e4ha.py` stops
-> (it samples ball-gap lengths from the mask). V1 training and `run_sub13.py` do not use it.
+`nd_mask` is `ball_masked` from `new_data/<m>_with_gt.csv` (`build_npz.py` reads it directly). `train_e4ha.py` samples ball-gap lengths from it.
 
 ## Data setup
 
-Neither folder is committed (both are in `.gitignore`). Paths are relative to the repo root; override with env vars `SPORTEC_RAW` / `BENCH_INPUTS`.
+Neither folder is committed (both are in `.gitignore`). Paths are relative to the repo root; override with env vars `SPORTEC_RAW` / `NEW_DATA`.
 
 ### `sportec_raw/` (Sportec / IDSSE open data)
 - Source: TODO (download URL / DOI of the Sportec open dataset)
 - Expected layout: `sportec_raw/DFL_04_03_positions_raw_observed_*.xml`, `sportec_raw/event/`, `sportec_raw/metadata/`
 - Steps: TODO (download → unzip → place files as above)
 
-### `recovery_bench/inputs/` (5 FPS player positions, `<match>_input.csv`)
-- Source: TODO (who produces it / which script generates it)
+### `new_data/` (`<match>_with_gt.csv`, 5 FPS, one file per Sportec match)
+- Source: TODO (who produces it / where to download it)
+- Used for: the 5 FPS frame list and ball columns (`make_inputs.py`) and `ball_masked` = `nd_mask` (`build_npz.py`)
 
 ## How to run
 
@@ -68,16 +67,15 @@ pip install -r requirements.txt
 
 **2. Preprocess (Sportec only)**
 
-Inputs:
-- Sportec raw XML folder (`DFL_04_03_positions_raw_observed_*.xml`, `event/`, `metadata/`). Set it with the `SPORTEC_RAW` environment variable.
-- `recovery_bench/inputs/<m>_input.csv` (5 FPS player positions). Set it with `BENCH_INPUTS`; the default is `recovery_bench/inputs` in this repo.
+Inputs: `sportec_raw/` and `new_data/` (see Data setup).
 
 ```
 cd preprocess
+python make_inputs.py      # about 4 min per match
 python make_ball5.py
 python step1_base_npz.py
 python step2_tree_pD_lomo.py
-python relabel_controlled_possession.py --raw "$SPORTEC_RAW" --out ../work/labels
+python relabel_controlled_possession.py --raw ../sportec_raw --out ../work/labels
 python build_npz.py
 cd ..
 ```
@@ -110,6 +108,7 @@ python evaluation/validate_submission.py combo_submissions/sub_13.csv
 ```
 
 ## Checks done on this branch
+- `make_inputs.py` gives the same player columns as the earlier `recovery_bench/inputs` for all 7 matches (max difference 3e-14 m), so `step1_base_npz.py` output is unchanged. The ball columns come from `new_data` and differ from that benchmark's own ball mask; step1 does not read them.
 - `make_ball5.py` gives the same values as the earlier `gk_test/*_ball5.csv` for all 7 matches.
 - `run_sub13.py` gives the same output as the earlier `combo_submissions/sub_13.csv`: 0 of 199,319 frames differ.
 - `deadball/predict_atd.py` reproduces the earlier `deadball_frames.csv` exactly.

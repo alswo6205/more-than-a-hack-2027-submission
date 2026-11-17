@@ -4,12 +4,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 # Sportec (IDSSE) open data: DFL_04_03_positions_raw_observed_*.xml, event/, metadata/
 SPORTEC_RAW = os.environ.get("SPORTEC_RAW", os.path.join(REPO, "sportec_raw"))
-# 5 FPS player-position tables from the ball-recovery benchmark (recovery_bench/inputs/<match>_input.csv)
-BENCH_INPUTS = os.environ.get("BENCH_INPUTS", os.path.join(REPO, "recovery_bench", "inputs"))
-# new_data ball-missing masks (TODO, owned by another team member): <ND_MASK_DIR>/<match>_nd_mask.npy
-ND_MASK_DIR = os.environ.get("ND_MASK_DIR", os.path.join(REPO, "work", "nd_mask"))
+# new_data/<match>_with_gt.csv: 5 FPS frames, ball columns, ball_masked (= nd_mask)
+NEW_DATA = os.environ.get("NEW_DATA", os.path.join(REPO, "new_data"))
 WORK = os.environ.get("WORK_DIR", os.path.join(REPO, "work"))
 BALL5 = os.path.join(WORK, "ball5")        # make_ball5.py
+BENCH_INPUTS = os.environ.get("BENCH_INPUTS", os.path.join(WORK, "inputs"))  # make_inputs.py
 BASE = os.path.join(WORK, "base")          # step1
 TREE = os.path.join(WORK, "tree_prob.npz") # step2
 LABELS = os.path.join(WORK, "labels")      # relabel_controlled_possession.py

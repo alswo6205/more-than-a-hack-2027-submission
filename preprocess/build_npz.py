@@ -4,14 +4,11 @@ labels: 0 = home (BallPossession 1), 1 = away (BallPossession 2), 2 = dead
 
   python preprocess/build_npz.py
 
-nd_mask (5 Hz ball-missing mask imitating new_data) is produced by another team member.
-TODO: put it at ND_MASK_DIR/<match>_nd_mask.npy (bool, one value per 5 Hz frame).
-If it is missing an all-False mask is written and a warning is printed
-(train_e4ha.py needs a real mask: it samples ball-gap lengths from it).
+nd_mask = ball_masked of NEW_DATA/<match>_with_gt.csv (train_e4ha.py samples ball-gap lengths from it).
 """
 import os
 import numpy as np, pandas as pd
-from paths import BASE, TREE, LABELS, ND_MASK_DIR, DATASET, MATCHES
+from paths import BASE, TREE, LABELS, NEW_DATA, DATASET, MATCHES
 
 NSLOT = 42
 
@@ -31,11 +28,8 @@ def main():
         tp = np.zeros(len(fr), np.float32)
         for p in (1, 2):
             ix = np.flatnonzero(per == p); tp[ix] = tree[f"{m}_{p}"]
-        f = os.path.join(ND_MASK_DIR, f"{m}_nd_mask.npy")
-        if os.path.exists(f):
-            nd = np.load(f).astype(bool); assert len(nd) == len(fr), m
-        else:
-            nd = np.zeros(len(fr), bool); print(f"WARNING {m}: {f} not found, nd_mask = all False (TODO)")
+        nd = pd.read_csv(os.path.join(NEW_DATA, f"{m}_with_gt.csv"), usecols=["frame_id", "ball_masked"])
+        assert (nd.frame_id.to_numpy() == fr).all(), m; nd = nd.ball_masked.to_numpy() == 1
         np.savez_compressed(os.path.join(DATASET, f"{m}.npz"), xy=b["xy"][:, :NSLOT], teams=b["teams"][:NSLOT], frame=fr, period=per,
                             gt_orig=gt_orig, ball=b["ball"][:, :2].astype(np.float32), nd_mask=nd,
                             tree_pD=tp,

@@ -1,6 +1,6 @@
 """Per-match base npz (positions, ball, original labels).
   python preprocess/step1_base_npz.py [match ...]
-inputs : BENCH_INPUTS/<m>_input.csv (players), work/ball5/<m>_ball5.csv (ball, status, possession)
+inputs : work/inputs/<m>_input.csv (players, make_inputs.py), work/ball5/<m>_ball5.csv (ball, status, possession)
 output : work/base/<m>.npz
 """
 import sys, os
