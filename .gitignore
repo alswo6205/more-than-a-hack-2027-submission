@@ -1,0 +1,22 @@
+# Competition data and anything derived from it must never be committed
+data/
+deadball_out/
+combo_submissions/
+sub_*.csv
+*.csv
+!deadball/results_eval_clean.csv
+!deadball/results_eval_sim.csv
+*BAR-ATH*
+*bar-ath*
+ad_predictions.csv
+dead_segments.csv
+gaps_over_3s.csv
+
+# Large / regenerated Sportec intermediates
+work/
+*.npz
+*_sportec_data.zip
+deadball/raw/
+deadball/data/
+third_party/outputs/
+__pycache__/
