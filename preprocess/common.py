@@ -11,7 +11,7 @@ def load(m):
     d=dict(np.load(os.path.join(BASE,f'{m}.npz'))); out=[]
     for p in (1,2):
         ix=np.flatnonzero(d['period']==p)
-        e={k:d[k][ix] for k in ('xy','frame','gt','prob','bnd','pred','ball')}; e['teams']=d['teams']; e['m']=m; e['p']=p
+        e={k:d[k][ix] for k in ('xy','frame','gt','ball')}; e['teams']=d['teams']; e['m']=m; e['p']=p
         xy=e['xy']; t=e['teams']
         hx=np.nanmean(xy[:,t==-1,0]); ax=np.nanmean(xy[:,t==1,0])
         e['goal']={-1:(0. if hx<ax else 105.), 1:(105. if hx<ax else 0.)}   # own goal x per team

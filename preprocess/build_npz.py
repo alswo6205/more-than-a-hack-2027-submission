@@ -1,5 +1,5 @@
 """Merge everything into one training npz per match: work/dataset/<match>.npz
-keys: xy, teams, frame, period, gt_orig, ball, nd_mask, v1pre_prob, tree_pD, gt_loose, gt_mid
+keys: xy, teams, frame, period, gt_orig, ball, nd_mask, tree_pD, gt_loose, gt_mid
 labels: 0 = home (BallPossession 1), 1 = away (BallPossession 2), 2 = dead
 
   python preprocess/build_npz.py
@@ -38,7 +38,7 @@ def main():
             nd = np.zeros(len(fr), bool); print(f"WARNING {m}: {f} not found, nd_mask = all False (TODO)")
         np.savez_compressed(os.path.join(DATASET, f"{m}.npz"), xy=b["xy"][:, :NSLOT], teams=b["teams"][:NSLOT], frame=fr, period=per,
                             gt_orig=gt_orig, ball=b["ball"][:, :2].astype(np.float32), nd_mask=nd,
-                            v1pre_prob=b["prob"].astype(np.float32), tree_pD=tp,
+                            tree_pD=tp,
                             gt_loose=to_gt(lab.poss_loose.to_numpy()), gt_mid=to_gt(lab.poss_mid.to_numpy()))
         print(m, len(fr), "frames", flush=True)
 

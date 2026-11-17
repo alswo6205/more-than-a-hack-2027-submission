@@ -26,7 +26,6 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 | `train/common_train.py` | shared data loading and the train/validation split (train on 6 matches, select on J03WPY) |
 | `deadball/` | tree A/D model: code and trained model (`deadball/model/`). See `deadball/README.md` |
 | `models/v1_mid.zip`, `models/e4ha_mid.zip` | trained weights. Despite the `.zip` name these are torch `.pt` files |
-| `models/v1_best.pt` | original V1 checkpoint. Used only to make `v1pre_prob` in preprocessing |
 | `run_sub13.py` | builds the sub_13 CSV for BAR-ATH |
 | `third_party/` | copied external code (see Sources) |
 | `work/` | generated intermediates (git-ignored) |
@@ -36,10 +35,10 @@ The trained models are included, so you can go straight to steps 4 and 5 without
 | Script | Output |
 |---|---|
 | `make_ball5.py` (new) | `work/ball5/<m>_ball5.csv`: ball x, y, z, BallPossession and BallStatus from the Sportec position XML, every 5th frame of each half |
-| `step1_base_npz_and_v1pre.py` | `work/base/<m>.npz`: positions, ball, original labels and original V1 probabilities |
+| `step1_base_npz.py` | `work/base/<m>.npz`: positions, ball, original labels |
 | `step2_tree_pD_lomo.py` | `work/tree_prob.npz`: leave-one-match-out tree D probability (`tree_pD`) |
 | `relabel_controlled_possession.py` | `work/labels/<m>_labels.csv`: event-based relabelling (`poss_orig`, `poss_loose`, `poss_mid`, `poss_strict`) |
-| `build_npz.py` (new) | `work/dataset/<m>.npz` with the keys `xy, teams, frame, period, gt_orig, ball, nd_mask, v1pre_prob, tree_pD, gt_loose, gt_mid` |
+| `build_npz.py` (new) | `work/dataset/<m>.npz` with the keys `xy, teams, frame, period, gt_orig, ball, nd_mask, tree_pD, gt_loose, gt_mid` |
 
 > **TODO – new_data ball-missing mask (`nd_mask`)**: another team member produces this mask, so it is not built here.
 > Put it at `work/nd_mask/<match>_nd_mask.npy` (bool, one value per 5 Hz frame), or set `ND_MASK_DIR`, before running `build_npz.py`.
@@ -71,12 +70,12 @@ pip install -r requirements.txt
 
 Inputs:
 - Sportec raw XML folder (`DFL_04_03_positions_raw_observed_*.xml`, `event/`, `metadata/`). Set it with the `SPORTEC_RAW` environment variable.
-- `recovery_bench/inputs/<m>_input.csv` (5 FPS player positions). Set it with `BENCH_INPUTS`; the default is `../recovery_bench/inputs`.
+- `recovery_bench/inputs/<m>_input.csv` (5 FPS player positions). Set it with `BENCH_INPUTS`; the default is `recovery_bench/inputs` in this repo.
 
 ```
 cd preprocess
 python make_ball5.py
-python step1_base_npz_and_v1pre.py
+python step1_base_npz.py
 python step2_tree_pD_lomo.py
 python relabel_controlled_possession.py --raw "$SPORTEC_RAW" --out ../work/labels
 python build_npz.py
@@ -119,7 +118,7 @@ python evaluation/validate_submission.py combo_submissions/sub_13.csv
 ## Sources of copied code
 | Path | Source |
 |---|---|
-| `third_party/pa_sm/`, `models/v1_best.pt` | V1 repository `barcelona-possession_ad` (team member's repo), package `pa_sm/` and `models/v1_best.pt`. Unmodified |
+| `third_party/pa_sm/` | V1 repository `barcelona-possession_ad` (team member's repo), package `pa_sm/`. Unmodified |
 | `third_party/models_new.py` | `mtah-e4` repository (`models_new.py`: Set Attention / PMA frame encoder). Unmodified |
 | `preprocess/step1_*.py`, `step2_*.py`, `features.py`, `config.py`, `common.py` | earlier data-build code (`recovery_bench_check/data_build/`). Only paths were changed, and step2's evaluation table was dropped |
 | `train/train_*.py` | `data_build/train_and_eval_combo.py` (= `kaggle/combo_experiment.ipynb`). The `mid`-label parts only, with the same computation |

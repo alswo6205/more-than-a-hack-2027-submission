@@ -14,6 +14,5 @@ BASE = os.path.join(WORK, "base")          # step1
 TREE = os.path.join(WORK, "tree_prob.npz") # step2
 LABELS = os.path.join(WORK, "labels")      # relabel_controlled_possession.py
 DATASET = os.path.join(WORK, "dataset")    # build_npz.py -> <match>.npz used for training
-V1_PRE = os.path.join(REPO, "models", "v1_best.pt")
 THIRD_PARTY = os.path.join(REPO, "third_party")
 MATCHES = ["J03WMX", "J03WN1", "J03WOH", "J03WOY", "J03WPY", "J03WQQ", "J03WR9"]
